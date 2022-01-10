@@ -1,0 +1,1 @@
+from sequencelearn.extraction.tagger import NamedEntityTagger
