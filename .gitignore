@@ -1,3 +1,6 @@
+# No VS Code
+.vscode/
+
 # No Jupyter Notebooks
 *.ipynb
 
