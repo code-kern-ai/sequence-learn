@@ -3,11 +3,16 @@ from keras.models import Sequential
 from keras.layers import Bidirectional, LSTM, TimeDistributed, Dense
 from keras.callbacks import EarlyStopping
 import numpy as np
-from sequencelearn.base import BaseTagger
+from sequencelearn.base import SequenceTagger, CONSTANT_OUTSIDE
+from sequencelearn.util import pad_and_mark
 
 
-class NamedEntityTagger(BaseTagger):
-    def __init__(self):
+class NeuralSequenceTagger(SequenceTagger):
+    def __init__(
+        self,
+        constant_outside=CONSTANT_OUTSIDE,
+    ):
+        super().__init__(constant_outside)
         self.model: Sequential = None
 
     def fit(
@@ -30,12 +35,10 @@ class NamedEntityTagger(BaseTagger):
             History: Callback containing information about the training loop.
         """
 
-        self.idx2label = None
-        self.label2idx = None
-        if labels.dtype not in [float, int]:
-            self.idx2label = {idx: label for idx, label in enumerate(np.unique(labels))}
-            self.label2idx = {label: idx for idx, label in self.idx2label.items()}
-            labels = np.vectorize(self.label2idx.get)(labels)
+        embeddings, labels, not_padded = pad_and_mark(
+            embeddings, self.CONSTANT_OUTSIDE, labels=labels
+        )
+        labels = self.convert_labels_and_create_mappings(labels)
 
         padding_length = embeddings.shape[1]
         embedding_dim = embeddings.shape[2]

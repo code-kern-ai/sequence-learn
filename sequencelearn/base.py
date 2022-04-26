@@ -1,67 +1,90 @@
 import numpy as np
-
 from abc import ABC, abstractmethod
+from sequencelearn.util import pad_and_mark
+
+CONSTANT_OUTSIDE = "OUTSIDE"
 
 
 class BaseTagger(ABC):
     @abstractmethod
-    def __init__(self) -> None:
+    def __init__(self, constant_outside) -> None:
         super().__init__()
+        self.CONSTANT_OUTSIDE = constant_outside
 
     @abstractmethod
     def fit(self, embeddings, labels) -> None:
         pass
 
+    @abstractmethod
     def _predict(self, embeddings: np.array) -> np.array:
-        if self.model is None:
-            raise Exception("Model has not been trained yet. Call .fit()")
-        return self.model.predict(embeddings)
+        pass
 
-    def predict(self, embeddings: np.array) -> np.array:
-        """
-        Forwards tensor through network to create hard predictions.
-        Args:
-            embeddings (np.array): Input tensor with dimensions [number records x padding length x embedding dimension].
-        Returns:
-            np.array: Hard predictions for the given input tensor.
-        """
-        predictions = self._predict(embeddings)
-        predictions = np.argmax(predictions, axis=-1)
-        if self.idx2label:
-            predictions = np.vectorize(self.idx2label.get)(predictions)
-        return predictions
-
-    def predict_confidence(self, embeddings: np.array) -> np.array:
-        """
-        Calculates confidence scores for a prediction given some input tensor.
-        Args:
-            embeddings (np.array): Input tensor with dimensions [number records x padding length x embedding dimension].
-        Returns:
-            np.array: Confidence scores (without actual prediction) of the respective prediction for the given input tensor.
-        """
-        pred_confs = []
-        for pred in self._predict(embeddings):
-            confs = []
-            argmax_indices = pred.argmax(axis=1)
-            for argmax_idx, pred_i in zip(argmax_indices, pred):
-                confs.append(pred_i[argmax_idx])
-            pred_confs.append(confs)
-        return np.array(pred_confs)
+    def convert_labels_and_create_mappings(self, labels):
+        self.idx2label = None
+        self.label2idx = None
+        if labels.dtype not in [float, int]:
+            self.idx2label = {idx: label for idx, label in enumerate(np.unique(labels))}
+            self.label2idx = {label: idx for idx, label in self.idx2label.items()}
+            labels = np.vectorize(self.label2idx.get)(labels)
+        return labels
 
     def predict_proba(self, embeddings: np.array) -> np.array:
-        """
-        Combines hard prediction with respective confidence scores for a given input tensor.
-        Args:
-            embeddings (np.array): Input tensor with dimensions [number records x padding length x embedding dimension].
-        Returns:
-            np.array: Zipped prediction and confidence scores for a given input tensor.
-        """
-        preds_proba = []
-        for pred, conf in zip(
-            # this can be improved performance-wise, as it calls self.model.predict twice with the same input
-            self.predict(embeddings),
-            self.predict_confidence(embeddings),
-        ):
-            preds_proba.append(list(zip(pred, conf)))
-        prediction_probabilities = np.array(preds_proba, dtype="object, float")
-        return prediction_probabilities
+        predictions_expanded = self._predict(embeddings)
+        predictions = np.argmax(predictions_expanded, axis=-1)
+        if self.idx2label:
+            predictions = np.vectorize(self.idx2label.get)(predictions)
+
+        confs = []
+        for idx, argmax in enumerate(predictions_expanded.argmax(axis=1)):
+            confs.append(predictions_expanded[idx][argmax])
+        confs = np.array(confs)
+
+        start_idx = 0
+        predictions_unsqueezed = []
+        confs_unsqueezed = []
+        for length in [len(vector) for vector in embeddings]:
+            end_idx = start_idx + length
+            predictions_unsqueezed.append(predictions[start_idx:end_idx].tolist())
+            confs_unsqueezed.append(confs[start_idx:end_idx].tolist())
+            start_idx = end_idx
+
+        return predictions_unsqueezed, confs_unsqueezed
+
+    def predict(self, embeddings: np.array) -> np.array:
+        predictions_unsqueezed, _ = self.predict_proba(embeddings)
+        return predictions_unsqueezed
+
+
+class SequenceTagger(BaseTagger):
+    def __init__(self, constant_outside) -> None:
+        super().__init__(constant_outside)
+
+    def _predict(self, embeddings: np.array) -> np.array:
+        embeddings, _, not_padded = pad_and_mark(embeddings, self.CONSTANT_OUTSIDE)
+        return np.concatenate(self.model.predict(embeddings))[not_padded]
+
+    @abstractmethod
+    def fit(self, embeddings, labels):
+        pass
+
+
+class PointTagger(BaseTagger):
+    def __init__(self, constant_outside) -> None:
+        super().__init__(constant_outside)
+
+    def _predict(self, embeddings: np.array) -> np.array:
+        embeddings, _, not_padded = pad_and_mark(embeddings, self.CONSTANT_OUTSIDE)
+        embeddings = np.concatenate(embeddings)[not_padded]
+        return self.model.predict_proba(embeddings)
+
+    def fit(self, embeddings, labels):
+        embeddings, labels, not_padded = pad_and_mark(
+            embeddings, self.CONSTANT_OUTSIDE, labels=labels
+        )
+
+        labels = self.convert_labels_and_create_mappings(labels)
+
+        embeddings = np.concatenate(embeddings)[not_padded]
+        labels = np.concatenate(labels)[not_padded]
+
+        self.model.fit(embeddings, labels)
