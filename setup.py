@@ -9,13 +9,13 @@ with open(os.path.join(this_directory, "README.md")) as file:
 
 setup(
     name="sequencelearn",
-    version="0.0.2",
+    version="0.0.3",
     author="Johannes Hötter",
-    author_email="johannes.hoetter@onetask.ai",
+    author_email="johannes.hoetter@kern.ai",
     description="Scikit-Learn like Named Entity Recognition modules",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/onetask-ai/sequencelearn",
+    url="https://github.com/code-kern-ai/sequencelearn",
     keywords=["onetask", "machine learning", "supervised learning", "python"],
     classifiers=[
         "Development Status :: 3 - Alpha",
