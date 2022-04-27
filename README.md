@@ -31,8 +31,11 @@ embeddings = embedder.encode(corpus) # contains a list of ragged shape [num_text
 tagger = TreeTagger()
 tagger.fit(embeddings, labels)
 
-sentence = "My birthyear is 1998"
-print(tagger.predict([sentence]))
+tagger.predict(embeddings)
+
+sentence = ["My birthyear is 2002"]
+print(tagger.predict(embedder.encode(sentence, fit_model=False)))
+# prints [['OUTSIDE', 'OUTSIDE', 'OUTSIDE', 'YEAR']]
 ```
 
 ## How to contribute
