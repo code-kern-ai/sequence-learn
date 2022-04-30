@@ -25,6 +25,7 @@ class BaseTagger(ABC):
         if labels.dtype not in [float, int]:
             self.idx2label = {idx: label for idx, label in enumerate(np.unique(labels))}
             self.label2idx = {label: idx for idx, label in self.idx2label.items()}
+            self.classes_ = [label for label in self.label2idx.keys()]
             labels = np.vectorize(self.label2idx.get)(labels)
         return labels
 
