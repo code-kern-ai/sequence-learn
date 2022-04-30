@@ -1,5 +1,6 @@
 # No VS Code
 .vscode/
+.DS_Store
 
 # No Jupyter Notebooks
 *.ipynb
