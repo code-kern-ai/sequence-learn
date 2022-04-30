@@ -9,7 +9,7 @@ with open(os.path.join(this_directory, "README.md")) as file:
 
 setup(
     name="sequencelearn",
-    version="0.0.3",
+    version="0.0.4",
     author="Johannes Hötter",
     author_email="johannes.hoetter@kern.ai",
     description="Scikit-Learn like Named Entity Recognition modules",
