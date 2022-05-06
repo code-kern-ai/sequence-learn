@@ -44,16 +44,24 @@ class CRFHead(nn.Module):
         else:
             return self._forward(x)
 
-    def fit(self, x, y, num_epochs=100):
+    def fit(
+        self, x, y, num_epochs=100, learning_rate=0.001, momentum=0.9, print_every=10
+    ):
 
         embedding_dim = x.shape[-1]
         num_classes = int(y.max()) + 1
 
         self._build(embedding_dim, num_classes)
 
-        optimizer = optim.SGD(self.parameters(), lr=0.001, momentum=0.9)
+        optimizer = optim.SGD(self.parameters(), lr=learning_rate, momentum=momentum)
 
         for epoch in range(num_epochs):
+            if epoch % print_every == 0:
+                if epoch == 0:
+                    loss_item = float("inf")
+                else:
+                    loss_item = loss.item()
+                print(f"Epoch {epoch + 1}/{num_epochs}. Loss {loss_item}")
 
             optimizer.zero_grad()
             predictions = self.forward(x, inference=False)

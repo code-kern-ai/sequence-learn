@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 from sequencelearn import CONSTANT_OUTSIDE, BaseTagger
 from sequencelearn.modules.crf_head import CRFHead
@@ -39,7 +39,7 @@ class CRFTagger(SequenceTagger):
             confs_.append([conf for _ in pred_ids])
         return preds_, confs_
 
-    def fit(self, embeddings, labels):
+    def fit(self, embeddings, labels, **kwargs):
         embeddings_padded, labels_padded, _ = pad_and_mark(
             embeddings, self.CONSTANT_OUTSIDE, labels
         )
@@ -47,4 +47,4 @@ class CRFTagger(SequenceTagger):
         labels_padded = convert_to_entropy(labels_padded)
         embeddings_padded = torch.tensor(embeddings_padded.astype(np.float32))
         labels_padded = torch.tensor(labels_padded)
-        self.model.fit(embeddings_padded, labels_padded)
+        self.model.fit(embeddings_padded, labels_padded, **kwargs)
