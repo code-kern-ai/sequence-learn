@@ -1,6 +1,6 @@
 from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.svm import SVC
-from sequencelearn.base import CONSTANT_OUTSIDE, PointTagger
+from sequencelearn import CONSTANT_OUTSIDE, PointTagger
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
