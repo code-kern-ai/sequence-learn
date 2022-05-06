@@ -45,7 +45,14 @@ class CRFHead(nn.Module):
             return self._forward(x)
 
     def fit(
-        self, x, y, num_epochs=100, learning_rate=0.001, momentum=0.9, print_every=10
+        self,
+        x,
+        y,
+        num_epochs=100,
+        learning_rate=0.001,
+        momentum=0.9,
+        print_every=10,
+        verbosity=0,
     ):
 
         embedding_dim = x.shape[-1]
@@ -61,7 +68,8 @@ class CRFHead(nn.Module):
                     loss_item = float("inf")
                 else:
                     loss_item = loss.item()
-                print(f"Epoch {epoch + 1}/{num_epochs}. Loss {loss_item}")
+                if verbosity > 0:
+                    print(f"Epoch {epoch + 1}/{num_epochs}. Loss {loss_item}")
 
             optimizer.zero_grad()
             predictions = self.forward(x, inference=False)
