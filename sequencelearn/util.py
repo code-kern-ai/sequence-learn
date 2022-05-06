@@ -1,7 +1,23 @@
 import numpy as np
+import torch
+from typing import List, Tuple, Union, Optional
 
 
-def pad_and_mark(embeddings, constant_outside, labels=None):
+def pad_and_mark(
+    embeddings: List[List[Union[float, List[float]]]],
+    constant_outside: str,
+    labels: Optional[List[Union[str, List[str]]]] = None,
+) -> Tuple[np.array, Optional[np.array], np.array]:
+    """_summary_
+
+    Args:
+        embeddings (List[List[Union[float, List[float]]]]): _description_
+        constant_outside (str): _description_
+        labels (Optional[List[Union[str, List[str]]]], optional): _description_. Defaults to None.
+
+    Returns:
+        Tuple[np.array, Optional[np.array], np.array]: _description_
+    """
 
     dim_0 = len(embeddings)
     dim_1 = max([len(vector) for vector in embeddings])
@@ -28,7 +44,16 @@ def pad_and_mark(embeddings, constant_outside, labels=None):
     return embeddings_padded, labels_padded, not_padded
 
 
-def convert_to_entropy(labels):
+def convert_to_entropy(labels: np.array) -> torch.tensor:
+    """_summary_
+
+    Args:
+        labels (np.array): _description_
+
+    Returns:
+        torch.tensor: _description_
+    """
+
     label_options = np.unique([item for sublist in labels for item in sublist]).tolist()
 
     longest_sequence = max([len(sequence) for sequence in labels])

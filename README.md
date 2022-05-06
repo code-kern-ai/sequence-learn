@@ -40,7 +40,9 @@ labels = [
 
 # use embedders to easily convert your raw data
 embedder = TransformerTokenEmbedder("distilbert-base-uncased", "en_core_web_sm")
-embeddings = embedder.encode(corpus) # contains a list of ragged shape [num_texts, num_tokens (text-specific), embedding_dimension]
+
+embeddings = embedder.encode(corpus)
+# contains a list of ragged shape [num_texts, num_tokens (text-specific), embedding_dimension]
 
 tagger = CRFTagger()
 tagger.fit(embeddings, labels)
@@ -82,3 +84,6 @@ Distributed under the Apache 2.0 License. See LICENSE.txt for more information.
 
 ## Contact
 This library is developed and maintained by [kern.ai](https://github.com/code-kern-ai). If you want to provide us with feedback or have some questions, don't hesitate to contact us. We're super happy to help ✌️
+
+## Acknowledgements
+Huge thanks to [Erik Ziegler](https://github.com/erksch) for helping with the CRF implementation!

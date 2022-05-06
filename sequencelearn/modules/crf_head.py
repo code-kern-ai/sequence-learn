@@ -3,20 +3,32 @@ import warnings
 # Warning for masks
 warnings.simplefilter("ignore", UserWarning)
 
+import numpy as np
 from typing import List, Optional
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union
 
 
 class CRFHead(nn.Module):
-    def __init__(self, hidden_dim: int = 100):
+    def __init__(self, hidden_dim: Optional[int] = 100):
+        """_summary_
+
+        Args:
+            hidden_dim (Optional[int], optional): _description_. Defaults to 100.
+        """
         super().__init__()
         self.hidden_dim = hidden_dim
 
-    def _build(self, embedding_dim, num_classes):
+    def _build(self, embedding_dim: int, num_classes: int):
+        """_summary_
+
+        Args:
+            embedding_dim (int): _description_
+            num_classes (int): _description_
+        """
         self.embedding_dim = embedding_dim
         self.num_classes = num_classes
 
@@ -24,16 +36,44 @@ class CRFHead(nn.Module):
         self.class_linear = nn.Linear(self.hidden_dim, self.num_classes)
         self.crf = CRF(self.num_classes, batch_first=True)
 
-    def loss_fn(self, x, y):
+    def loss_fn(self, x: torch.tensor, y: torch.tensor) -> torch.tensor:
+        """_summary_
+
+        Args:
+            x (torch.tensor): _description_
+            y (torch.tensor): _description_
+
+        Returns:
+            torch.tensor: _description_
+        """
         return -self.crf(x, y)
 
-    def _forward(self, x):
+    def _forward(self, x: torch.tensor) -> torch.tensor:
+        """_summary_
+
+        Args:
+            x (torch.tensor): _description_
+
+        Returns:
+            torch.tensor: _description_
+        """
         x = self.linear(x)
         x = F.relu(x)
         x = self.class_linear(x)
         return x
 
-    def forward(self, x, inference=False):
+    def forward(
+        self, x: torch.tensor, inference: Optional[bool] = False
+    ) -> Tuple[Union[torch.tensor, np.array], Optional[np.array]]:
+        """_summary_
+
+        Args:
+            x (torch.tensor): _description_
+            inference (Optional[bool], optional): _description_. Defaults to False.
+
+        Returns:
+            Tuple[Union[torch.tensor, np.array], Optional[np.array]]: _description_
+        """
         if inference:
             with torch.no_grad():
                 x = self._forward(x)
@@ -46,14 +86,25 @@ class CRFHead(nn.Module):
 
     def fit(
         self,
-        x,
-        y,
-        num_epochs=100,
-        learning_rate=0.001,
-        momentum=0.9,
-        print_every=10,
-        verbosity=0,
+        x: torch.tensor,
+        y: torch.tensor,
+        num_epochs: Optional[int] = 100,
+        learning_rate: Optional[float] = 0.001,
+        momentum: Optional[float] = 0.9,
+        print_every: Optional[int] = 10,
+        verbosity: Optional[int] = 0,
     ):
+        """_summary_
+
+        Args:
+            x (torch.tensor): _description_
+            y (torch.tensor): _description_
+            num_epochs (Optional[int], optional): _description_. Defaults to 100.
+            learning_rate (Optional[float], optional): _description_. Defaults to 0.001.
+            momentum (Optional[float], optional): _description_. Defaults to 0.9.
+            print_every (Optional[int], optional): _description_. Defaults to 10.
+            verbosity (Optional[int], optional): _description_. Defaults to 0.
+        """
 
         embedding_dim = x.shape[-1]
         num_classes = int(y.max()) + 1

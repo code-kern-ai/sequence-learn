@@ -1,23 +1,8 @@
 import numpy as np
 import torch
-from abc import abstractmethod
-
-from sequencelearn import CONSTANT_OUTSIDE, BaseTagger
+from sequencelearn import CONSTANT_OUTSIDE, SequenceTagger
 from sequencelearn.modules.crf_head import CRFHead
 from sequencelearn.util import convert_to_entropy, pad_and_mark
-
-
-class SequenceTagger(BaseTagger):
-    def __init__(self, constant_outside) -> None:
-        super().__init__(constant_outside)
-
-    @abstractmethod
-    def predict_proba(self, embeddings: np.array) -> np.array:
-        pass
-
-    @abstractmethod
-    def fit(self, embeddings, labels):
-        pass
 
 
 class CRFTagger(SequenceTagger):
