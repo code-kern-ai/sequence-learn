@@ -1,5 +1,7 @@
-![sequence-learn](banner.png)
-
+![sequence-learn](https://uploads-ssl.webflow.com/61e47fafb12bd56b40022a49/6274762101c203108c785958_banner.png)
+<img src="https://img.shields.io/badge/version-0.0.5-green" />
+<img src="https://img.shields.io/badge/pip-0.0.5-green" />
+<img src="https://img.shields.io/badge/python-3.9-blue" />
 
 # ➡️ sequence-learn
 With `sequence-learn`, you can build models for named entity recognition as quickly as if you were building a sklearn classifier.
@@ -22,8 +24,8 @@ $ python -m spacy download en_core_web_sm
 Once you have installed the package(s), you can easily create the input for a text corpus and put it - together with the required labels - into the model training.
 
 ```python
-from embedders.extraction.count_based import CharacterTokenEmbedder
-from sequencelearn.point_tagger import TreeTagger
+from embedders.extraction.contextual import TransformerTokenEmbedder
+from sequencelearn.sequence_tagger import CRFTagger
 
 corpus = [
     "I went to Cologne in 2009",
@@ -38,10 +40,12 @@ labels = [
 ]
 
 # use embedders to easily convert your raw data
-embedder = CharacterTokenEmbedder("en_core_web_sm")
-embeddings = embedder.encode(corpus) # contains a list of ragged shape [num_texts, num_tokens (text-specific), embedding_dimension]
+embedder = TransformerTokenEmbedder("distilbert-base-uncased", "en_core_web_sm")
 
-tagger = TreeTagger()
+embeddings = embedder.fit_transform(corpus)
+# contains a list of ragged shape [num_texts, num_tokens (text-specific), embedding_dimension]
+
+tagger = CRFTagger()
 tagger.fit(embeddings, labels)
 ```
 
@@ -49,16 +53,15 @@ Now that you've trained a tagger model, you can easily apply it to new text data
 
 ```python
 sentence = ["My birthyear is 2002"]
-print(tagger.predict(embedder.encode(sentence, fit_model=False)))
+print(tagger.predict(embedder.transform(sentence)))
 # prints [['OUTSIDE', 'OUTSIDE', 'OUTSIDE', 'YEAR']]
 ```
 
 ## Roadmap
-- [ ] Add extensive documentation to existing models
+- [x] Add documentation to existing models
+- [x] Add sequence-based models (e.g. CRF-based)
 - [ ] Add sample projects
-- [ ] Add sequence-based models (e.g. RNNs)
-- [ ] Add label conversions for different formats
-- [ ] Add further interface capabilities
+- [ ] Add test cases
 
 If you want to have something added, feel free to open an [issue](https://github.com/code-kern-ai/sequence-learn/issues).
 
@@ -81,3 +84,6 @@ Distributed under the Apache 2.0 License. See LICENSE.txt for more information.
 
 ## Contact
 This library is developed and maintained by [kern.ai](https://github.com/code-kern-ai). If you want to provide us with feedback or have some questions, don't hesitate to contact us. We're super happy to help ✌️
+
+## Acknowledgements
+Huge thanks to [Erik Ziegler](https://github.com/erksch) for helping with the CRF implementation!
