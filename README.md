@@ -1,6 +1,7 @@
 ![sequence-learn](https://uploads-ssl.webflow.com/61e47fafb12bd56b40022a49/6274762101c203108c785958_banner.png)
 <img src="https://img.shields.io/badge/version-0.0.5-green" />
 <img src="https://img.shields.io/badge/pip-0.0.5-green" />
+<img src="https://img.shields.io/badge/python-3.9-blue" />
 
 # ➡️ sequence-learn
 With `sequence-learn`, you can build models for named entity recognition as quickly as if you were building a sklearn classifier.
@@ -57,11 +58,10 @@ print(tagger.predict(embedder.encode(sentence, fit_model=False)))
 ```
 
 ## Roadmap
-- [ ] Add extensive documentation to existing models
+- [x] Add documentation to existing models
+- [x] Add sequence-based models (e.g. CRF-based)
 - [ ] Add sample projects
-- [x] Add sequence-based models (e.g. RNNs)
-- [ ] Add label conversions for different formats
-- [ ] Add further interface capabilities
+- [ ] Add test cases
 
 If you want to have something added, feel free to open an [issue](https://github.com/code-kern-ai/sequence-learn/issues).
 
