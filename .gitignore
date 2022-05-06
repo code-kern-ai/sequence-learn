@@ -2,9 +2,6 @@
 .vscode/
 .DS_Store
 
-# No Jupyter Notebooks
-*.ipynb
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,7 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 from sequencelearn.util import pad_and_mark
-from typing import List, Union, Tuple
+from typing import List, Tuple
 
 CONSTANT_OUTSIDE = "OUTSIDE"
 # you can choose any kind of marker for your out-of-scope labels
@@ -34,41 +34,41 @@ class BaseTagger(ABC):
     @abstractmethod
     def fit(
         self,
-        embeddings: List[List[Union[float, List[float]]]],
-        labels: List[Union[str, List[str]]],
+        embeddings: List[List[List[float]]],
+        labels: List[List[str]],
     ):
         """Starts the training procedure for the given tagger.
 
         Args:
-            embeddings (List[List[Union[float, List[float]]]]): Plain list of the embeddings (e.g. created via the code-kern-ai/embedders library)
-            labels (List[Union[str, List[str]]]): Plain list of the labels
+            embeddings (List[List[List[float]]]): Plain list of the embeddings (e.g. created via the code-kern-ai/embedders library)
+            labels (List[List[str]]): Plain list of the labels
         """
         pass
 
     @abstractmethod
     def predict_proba(
-        self, embeddings: List[List[Union[float, List[float]]]]
-    ) -> Tuple[List[Union[str, List[str]]], List[Union[float, List[float]]]]:
+        self, embeddings: List[List[List[float]]]
+    ) -> Tuple[List[List[str]], List[List[float]]]:
         """Forwards the input data through the tagger and creates label sequence predictions and probabilities
 
         Args:
-            embeddings (List[List[Union[float, List[float]]]]): Plain list of the embeddings (e.g. created via the code-kern-ai/embedders library)
+            embeddings (List[List[List[float]]]): Plain list of the embeddings (e.g. created via the code-kern-ai/embedders library)
 
         Returns:
-            Tuple[List[Union[str, List[str]]], List[Union[float, List[float]]]]: Plain list of the predicted labels sequence, plain list of the prediction probabilities
+            Tuple[List[List[str]], List[List[float]]]: Plain list of the predicted labels sequence, plain list of the prediction probabilities
         """
         pass
 
     def predict(
-        self, embeddings: List[List[Union[float, List[float]]]]
-    ) -> List[Union[str, List[str]]]:
+        self, embeddings: List[List[List[float]]]
+    ) -> List[List[str]]:
         """Forwards the input data through the tagger and creates label sequence predictions
 
         Args:
-            embeddings (List[List[Union[float, List[float]]]]): Plain list of the embeddings (e.g. created via the code-kern-ai/embedders library)
+            embeddings (List[List[List[float]]]): Plain list of the embeddings (e.g. created via the code-kern-ai/embedders library)
 
         Returns:
-            List[Union[str, List[str]]]: plain list of the predicted labels sequence
+            List[List[str]]: plain list of the predicted labels sequence
         """
         predictions_unsqueezed, _ = self.predict_proba(embeddings)
         return predictions_unsqueezed
