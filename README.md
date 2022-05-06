@@ -42,7 +42,7 @@ labels = [
 # use embedders to easily convert your raw data
 embedder = TransformerTokenEmbedder("distilbert-base-uncased", "en_core_web_sm")
 
-embeddings = embedder.encode(corpus)
+embeddings = embedder.fit_transform(corpus)
 # contains a list of ragged shape [num_texts, num_tokens (text-specific), embedding_dimension]
 
 tagger = CRFTagger()
@@ -53,7 +53,7 @@ Now that you've trained a tagger model, you can easily apply it to new text data
 
 ```python
 sentence = ["My birthyear is 2002"]
-print(tagger.predict(embedder.encode(sentence, fit_model=False)))
+print(tagger.predict(embedder.transform(sentence)))
 # prints [['OUTSIDE', 'OUTSIDE', 'OUTSIDE', 'YEAR']]
 ```
 
