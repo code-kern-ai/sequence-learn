@@ -1,5 +1,6 @@
-![sequence-learn](banner.png)
-
+![sequence-learn](https://uploads-ssl.webflow.com/61e47fafb12bd56b40022a49/6274762101c203108c785958_banner.png)
+<img src="https://img.shields.io/badge/version-0.0.5-green" />
+<img src="https://img.shields.io/badge/pip-0.0.5-green" />
 
 # ➡️ sequence-learn
 With `sequence-learn`, you can build models for named entity recognition as quickly as if you were building a sklearn classifier.
@@ -22,8 +23,8 @@ $ python -m spacy download en_core_web_sm
 Once you have installed the package(s), you can easily create the input for a text corpus and put it - together with the required labels - into the model training.
 
 ```python
-from embedders.extraction.count_based import CharacterTokenEmbedder
-from sequencelearn.point_tagger import TreeTagger
+from embedders.extraction.contextual import TransformerTokenEmbedder
+from sequencelearn.sequence_tagger import CRFTagger
 
 corpus = [
     "I went to Cologne in 2009",
@@ -38,10 +39,10 @@ labels = [
 ]
 
 # use embedders to easily convert your raw data
-embedder = CharacterTokenEmbedder("en_core_web_sm")
+embedder = TransformerTokenEmbedder("distilbert-base-uncased", "en_core_web_sm")
 embeddings = embedder.encode(corpus) # contains a list of ragged shape [num_texts, num_tokens (text-specific), embedding_dimension]
 
-tagger = TreeTagger()
+tagger = CRFTagger()
 tagger.fit(embeddings, labels)
 ```
 
@@ -56,7 +57,7 @@ print(tagger.predict(embedder.encode(sentence, fit_model=False)))
 ## Roadmap
 - [ ] Add extensive documentation to existing models
 - [ ] Add sample projects
-- [ ] Add sequence-based models (e.g. RNNs)
+- [x] Add sequence-based models (e.g. RNNs)
 - [ ] Add label conversions for different formats
 - [ ] Add further interface capabilities
 
