@@ -14,10 +14,10 @@ from typing import List, Optional, Tuple, Union
 
 class CRFHead(nn.Module):
     def __init__(self, hidden_dim: Optional[int] = 100):
-        """_summary_
+        """Layer for sequence taggers trained via conditional random fields
 
         Args:
-            hidden_dim (Optional[int], optional): _description_. Defaults to 100.
+            hidden_dim (Optional[int], optional): Dimensionality of the linear classifier. Defaults to 100.
         """
         super().__init__()
         self.hidden_dim = hidden_dim
@@ -26,8 +26,8 @@ class CRFHead(nn.Module):
         """_summary_
 
         Args:
-            embedding_dim (int): _description_
-            num_classes (int): _description_
+            embedding_dim (int): Dimension of the token-level embedding
+            num_classes (int): Number of classes to predict
         """
         self.embedding_dim = embedding_dim
         self.num_classes = num_classes
@@ -36,26 +36,26 @@ class CRFHead(nn.Module):
         self.class_linear = nn.Linear(self.hidden_dim, self.num_classes)
         self.crf = CRF(self.num_classes, batch_first=True)
 
-    def loss_fn(self, x: torch.tensor, y: torch.tensor) -> torch.tensor:
-        """_summary_
+    def loss_fn(self, y_hat: torch.tensor, y: torch.tensor) -> torch.tensor:
+        """CRF-based loss function for backpropagation.
 
         Args:
-            x (torch.tensor): _description_
-            y (torch.tensor): _description_
+            y_hat (torch.tensor): Model predictions
+            y (torch.tensor): Ground truths
 
         Returns:
-            torch.tensor: _description_
+            torch.tensor: Loss value for the given predictions and ground truths
         """
-        return -self.crf(x, y)
+        return -self.crf(y_hat, y)
 
     def _forward(self, x: torch.tensor) -> torch.tensor:
-        """_summary_
+        """Puts data through model for prediction
 
         Args:
-            x (torch.tensor): _description_
+            x (torch.tensor): Embedded data
 
         Returns:
-            torch.tensor: _description_
+            torch.tensor: Encoded predictions (must be decoded via viterbi decoder for inference)
         """
         x = self.linear(x)
         x = F.relu(x)
@@ -63,23 +63,22 @@ class CRFHead(nn.Module):
         return x
 
     def forward(
-        self, x: torch.tensor, inference: Optional[bool] = False
+        self, x: torch.tensor, inference: Optional[bool] = True
     ) -> Tuple[Union[torch.tensor, np.array], Optional[np.array]]:
         """_summary_
 
         Args:
-            x (torch.tensor): _description_
-            inference (Optional[bool], optional): _description_. Defaults to False.
+            x (torch.tensor): Embedded data
+            inference (Optional[bool], optional): If set to True, model predictions will be decoded to use for tagging predictions. Defaults to True.
 
         Returns:
-            Tuple[Union[torch.tensor, np.array], Optional[np.array]]: _description_
+            Tuple[Union[torch.tensor, np.array], Optional[np.array]]: During inference, this provides the tagging predictions as well as the confidence for the whole sequence. During training, this contains the encoded tag list scores.
         """
         if inference:
             with torch.no_grad():
                 x = self._forward(x)
                 x, confidence = self.crf.decode(x)
                 x = torch.LongTensor(x)
-                # x = F.one_hot(x, self.num_classes).float()
                 return x.numpy(), confidence.numpy()
         else:
             return self._forward(x)
@@ -97,13 +96,13 @@ class CRFHead(nn.Module):
         """_summary_
 
         Args:
-            x (torch.tensor): _description_
-            y (torch.tensor): _description_
-            num_epochs (Optional[int], optional): _description_. Defaults to 100.
-            learning_rate (Optional[float], optional): _description_. Defaults to 0.001.
-            momentum (Optional[float], optional): _description_. Defaults to 0.9.
-            print_every (Optional[int], optional): _description_. Defaults to 10.
-            verbosity (Optional[int], optional): _description_. Defaults to 0.
+            x (torch.tensor): Embedded data
+            y (torch.tensor): Ground truths
+            num_epochs (Optional[int], optional): Number of epochs to train the CRF tagger. Defaults to 100.
+            learning_rate (Optional[float], optional): Factor to apply during backpropagation. Defaults to 0.001.
+            momentum (Optional[float], optional): Factor to weigh previous iteration during training. Defaults to 0.9.
+            print_every (Optional[int], optional): If verbosity is > 0, setting this will print training logs every n epochs. Defaults to 10.
+            verbosity (Optional[int], optional): If set > 0, this will print logs during training. Defaults to 0.
         """
 
         embedding_dim = x.shape[-1]
