@@ -11,9 +11,7 @@ class CRFTagger(SequenceTagger):
         self.model = CRFHead(**kwargs)
 
     def predict_proba(self, embeddings: np.array) -> np.array:
-        embeddings_padded, _, not_padded = pad_and_mark(
-            embeddings, self.CONSTANT_OUTSIDE
-        )
+        embeddings_padded, _, _ = pad_and_mark(embeddings, self.CONSTANT_OUTSIDE)
         embeddings_padded = torch.tensor(embeddings_padded.astype(np.float32))
         preds, confs = self.model.forward(embeddings_padded, inference=True)
         preds_ = []

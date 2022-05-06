@@ -8,15 +8,15 @@ def pad_and_mark(
     constant_outside: str,
     labels: Optional[List[Union[str, List[str]]]] = None,
 ) -> Tuple[np.array, Optional[np.array], np.array]:
-    """_summary_
+    """Pads rugged embeddings (and, if given, labels) to a unified size.
 
     Args:
-        embeddings (List[List[Union[float, List[float]]]]): _description_
-        constant_outside (str): _description_
-        labels (Optional[List[Union[str, List[str]]]], optional): _description_. Defaults to None.
+        embeddings (List[List[Union[float, List[float]]]]): Plain list of the embeddings (e.g. created via the code-kern-ai/embedders library)
+        constant_outside (str): Placeholder value for predictions that are out-of-scope.
+        labels (Optional[List[Union[str, List[str]]]], optional): Plain list of the labels. Defaults to None; in that case, the second return value is None.
 
     Returns:
-        Tuple[np.array, Optional[np.array], np.array]: _description_
+        Tuple[np.array, Optional[np.array], np.array]: Padded embeddings, padded labels (if rugged labels are given), and a vector indicating which values in the matrix have been padded (i.e. are placeholders).
     """
 
     dim_0 = len(embeddings)
@@ -45,13 +45,13 @@ def pad_and_mark(
 
 
 def convert_to_entropy(labels: np.array) -> torch.tensor:
-    """_summary_
+    """Transforms labels to an entropy-loss applicable version.
 
     Args:
-        labels (np.array): _description_
+        labels (np.array): Padded labels
 
     Returns:
-        torch.tensor: _description_
+        torch.tensor: Label matrix fitting the entropy-loss format
     """
 
     label_options = np.unique([item for sublist in labels for item in sublist]).tolist()
