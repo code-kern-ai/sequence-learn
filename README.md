@@ -60,7 +60,8 @@ print(tagger.predict(embedder.transform(sentence)))
 ## Roadmap
 - [x] Add documentation to existing models
 - [x] Add sequence-based models (e.g. CRF-based)
-- [ ] Add sample projects
+- [x] Add sample projects
+- [ ] Enable models to be converted to bytes / stored to disk
 - [ ] Add test cases
 
 If you want to have something added, feel free to open an [issue](https://github.com/code-kern-ai/sequence-learn/issues).
