@@ -14,7 +14,7 @@ def get_entities_data(
     Returns:
         Tuple[List[str], List[List[str]]]: Sentences and plain labels
     """
-    path_to_file = os.path.join("sequencelearn", "data", "sample_entities.json")
+    path_to_file = os.path.join("data", "sample_entities.json")
     with open(path_to_file, "r") as file:
         content = json.load(file)
     if num_samples is not None:

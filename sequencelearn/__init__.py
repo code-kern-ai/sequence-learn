@@ -84,15 +84,15 @@ class PointTagger(BaseTagger):
         super().__init__(constant_outside)
 
     def predict_proba(self, embeddings):
-        embeddings, _, not_padded = pad_and_mark(embeddings, self.CONSTANT_OUTSIDE)
-        embeddings_padded = np.concatenate(embeddings)[not_padded]
+        embeddings_padded, _, not_padded = pad_and_mark(embeddings, self.CONSTANT_OUTSIDE)
+        embeddings_padded = np.concatenate(embeddings_padded)[not_padded]
 
         predictions_expanded = self.model.predict_proba(embeddings_padded)
 
         predictions = np.argmax(predictions_expanded, axis=-1)
         if self.idx2label:
             predictions = np.vectorize(self.idx2label.get)(predictions)
-
+            
         confs = []
         for idx, argmax in enumerate(predictions_expanded.argmax(axis=1)):
             confs.append(predictions_expanded[idx][argmax])
