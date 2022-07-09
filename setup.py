@@ -9,7 +9,7 @@ with open(os.path.join(this_directory, "README.md")) as file:
 
 setup(
     name="sequencelearn",
-    version="0.0.5",
+    version="0.0.6",
     author="Johannes Hötter",
     author_email="johannes.hoetter@kern.ai",
     description="Scikit-Learn like Named Entity Recognition modules",
@@ -25,15 +25,9 @@ setup(
     package_dir={"": "."},
     packages=find_packages("."),
     install_requires=[
-        "certifi==2021.10.8",
-        "joblib==1.1.0",
-        "nbconvert==6.5.0",
-        "numpy==1.22.3",
-        "scikit-learn==1.0.2",
-        "scipy==1.8.0",
-        "threadpoolctl==3.1.0",
-        "tinycss2==1.1.1",
-        "torch==1.11.0",
-        "typing_extensions==4.2.0",
+        "numpy>=1.22.3",
+        "scikit-learn>=1.0.2",
+        "scipy>=1.8.0",
+        "torch>=1.11.0"
     ],
 )

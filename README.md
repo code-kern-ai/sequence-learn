@@ -1,7 +1,6 @@
 ![sequence-learn](https://uploads-ssl.webflow.com/61e47fafb12bd56b40022a49/6274762101c203108c785958_banner.png)
-<img src="https://img.shields.io/badge/version-0.0.5-green" />
-<img src="https://img.shields.io/badge/pip-0.0.5-green" />
-<img src="https://img.shields.io/badge/python-3.9-blue" />
+[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
+[![pypi 0.0.6](https://img.shields.io/badge/pypi-0.0.6-green.svg)](https://pypi.org/project/sequencelearn/0.0.6/)
 
 # ➡️ sequence-learn
 With `sequence-learn`, you can build models for named entity recognition as quickly as if you were building a sklearn classifier.
