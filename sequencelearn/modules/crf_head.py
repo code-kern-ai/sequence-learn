@@ -111,11 +111,12 @@ class CRFHead(nn.Module):
         else:
             random_seed = torch.seed()
 
-        print("Settings for training:")
-        print(f"num_epochs     {num_epochs}")
-        print(f"learning_rate  {learning_rate}")
-        print(f"momentum       {momentum}")
-        print(f"random_seed    {random_seed}")
+        if verbose:
+            print("Settings for training:")
+            print(f"num_epochs     {num_epochs}")
+            print(f"learning_rate  {learning_rate}")
+            print(f"momentum       {momentum}")
+            print(f"random_seed    {random_seed}")
 
         embedding_dim = x.shape[-1]
         num_classes = int(y.max()) + 1
