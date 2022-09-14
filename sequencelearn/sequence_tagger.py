@@ -9,13 +9,13 @@ from sequencelearn.util import convert_to_entropy, pad_and_mark, batch
 class CRFTagger(SequenceTagger):
     def __init__(
         self,
-        num_epochs: Optional[int] = 100,
-        learning_rate: Optional[float] = 0.001,
-        momentum: Optional[float] = 0.9,
+        num_epochs: int = 100,
+        learning_rate: float = 0.001,
+        momentum: float = 0.9,
         random_seed: Optional[int] = None,
-        batch_size: Optional[int] = 1024,
-        print_every: Optional[int] = 10,
-        verbose: Optional[bool] = False,
+        batch_size: int = 128,
+        print_every: int = 10,
+        verbose: bool = False,
         constant_outside=CONSTANT_OUTSIDE,
         **kwargs
     ):

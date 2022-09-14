@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 import numpy as np
 from sklearn.metrics import confusion_matrix
 
@@ -8,14 +8,14 @@ from sequencelearn import CONSTANT_OUTSIDE, util
 def get_confusion_matrix(
     predictions: List[List[str]],
     labels: List[List[str]],
-    constant_outside: Optional[str] = CONSTANT_OUTSIDE,
+    constant_outside: str = CONSTANT_OUTSIDE,
 ) -> Tuple[np.array, List[str]]:
     """Calculates the confusion matrix on BIO-level
 
     Args:
         predictions (List[List[str]]): Plain list of the model predictions
         labels (List[List[str]]): Plain list of labels
-        constant_outside (Optional[str], optional): Placeholder for out-of-scope entities. Defaults to "OUTSIDE".
+        constant_outside (str): Placeholder for out-of-scope entities. Defaults to "OUTSIDE".
 
     Returns:
         Tuple[np.array, List[str]]: Confusion matrix, and the names of the labels (in order)

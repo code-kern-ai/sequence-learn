@@ -65,14 +65,14 @@ def convert_to_entropy(labels: np.array) -> torch.tensor:
 
 
 def convert_to_bio(
-    labels: List[List[str]], constant_outside: str, flat: Optional[bool] = False
+    labels: List[List[str]], constant_outside: str, flat: bool = False
 ) -> Union[List[str], List[List[str]]]:
     """Transforms labels to BIO format (begin, in, out)
 
     Args:
         labels (List[List[str]]): Plain list of the labels.
         constant_outside (str): Placeholder value for predictions that are out-of-scope.
-        flat (Optional[bool], optional): If set to True, the resulting list will be flattened. Defaults to False.
+        flat (bool): If set to True, the resulting list will be flattened. Defaults to False.
 
     Returns:
         Union[List[str], List[List[str]]]: List of BIO-labels, either 1d or 2d
