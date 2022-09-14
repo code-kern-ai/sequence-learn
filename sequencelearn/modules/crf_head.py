@@ -4,6 +4,7 @@ import warnings
 warnings.simplefilter("ignore", UserWarning)
 
 import numpy as np
+import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -109,7 +110,12 @@ class CRFHead(nn.Module):
             torch.manual_seed(random_seed)
         else:
             random_seed = torch.seed()
-        print(f"Random seed is {random_seed}.")
+
+        print("Settings for training:")
+        print(f"num_epochs     {num_epochs}")
+        print(f"learning_rate  {learning_rate}")
+        print(f"momentum       {momentum}")
+        print(f"random_seed    {random_seed}")
 
         embedding_dim = x.shape[-1]
         num_classes = int(y.max()) + 1
@@ -133,6 +139,7 @@ class CRFHead(nn.Module):
             loss = self.loss_fn(predictions, y)
 
             if np.isnan(loss.item()):
+                sys.tracebacklimit = 0
                 raise RuntimeError("Loss is NaN. Try lowering the learning rate.")
 
             loss.backward()
