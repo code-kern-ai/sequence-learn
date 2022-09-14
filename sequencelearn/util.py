@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from typing import List, Tuple, Optional, Union
+from typing import Any, Generator, List, Tuple, Optional, Union
 
 
 def pad_and_mark(
@@ -65,14 +65,14 @@ def convert_to_entropy(labels: np.array) -> torch.tensor:
 
 
 def convert_to_bio(
-    labels: List[List[str]], constant_outside: str, flat: Optional[bool] = False
+    labels: List[List[str]], constant_outside: str, flat: bool = False
 ) -> Union[List[str], List[List[str]]]:
     """Transforms labels to BIO format (begin, in, out)
 
     Args:
         labels (List[List[str]]): Plain list of the labels.
         constant_outside (str): Placeholder value for predictions that are out-of-scope.
-        flat (Optional[bool], optional): If set to True, the resulting list will be flattened. Defaults to False.
+        flat (bool): If set to True, the resulting list will be flattened. Defaults to False.
 
     Returns:
         Union[List[str], List[List[str]]]: List of BIO-labels, either 1d or 2d
@@ -95,3 +95,9 @@ def convert_to_bio(
         else:
             labels_prefixed.append(label_list_prefixed)
     return labels_prefixed
+
+
+def batch(documents: List[Any], batch_size: int) -> Generator[List[Any], None, None]:
+    length = len(documents)
+    for idx in range(0, length, batch_size):
+        yield documents[idx : min(idx + batch_size, length)]

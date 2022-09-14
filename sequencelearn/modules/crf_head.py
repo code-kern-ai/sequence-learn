@@ -4,7 +4,7 @@ import warnings
 warnings.simplefilter("ignore", UserWarning)
 
 import numpy as np
-from typing import List, Optional
+import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -13,11 +13,11 @@ from typing import List, Optional, Tuple, Union
 
 
 class CRFHead(nn.Module):
-    def __init__(self, hidden_dim: Optional[int] = 100):
+    def __init__(self, hidden_dim: int = 100):
         """Layer for sequence taggers trained via conditional random fields
 
         Args:
-            hidden_dim (Optional[int], optional): Dimensionality of the linear classifier. Defaults to 100.
+            hidden_dim (int): Dimensionality of the linear classifier. Defaults to 100.
         """
         super().__init__()
         self.hidden_dim = hidden_dim
@@ -63,13 +63,13 @@ class CRFHead(nn.Module):
         return x
 
     def forward(
-        self, x: torch.tensor, inference: Optional[bool] = True
-    ) -> Tuple[Union[torch.tensor, np.array], Optional[np.array]]:
+        self, x: torch.tensor, inference: bool = True
+    ) -> Union[torch.tensor, Tuple[np.array, np.array]]:
         """_summary_
 
         Args:
             x (torch.tensor): Embedded data
-            inference (Optional[bool], optional): If set to True, model predictions will be decoded to use for tagging predictions. Defaults to True.
+            inference (bool): If set to True, model predictions will be decoded to use for tagging predictions. Defaults to True.
 
         Returns:
             Tuple[Union[torch.tensor, np.array], Optional[np.array]]: During inference, this provides the tagging predictions as well as the confidence for the whole sequence. During training, this contains the encoded tag list scores.
@@ -87,23 +87,36 @@ class CRFHead(nn.Module):
         self,
         x: torch.tensor,
         y: torch.tensor,
-        num_epochs: Optional[int] = 100,
-        learning_rate: Optional[float] = 0.001,
-        momentum: Optional[float] = 0.9,
-        print_every: Optional[int] = 10,
-        verbosity: Optional[int] = 0,
+        num_epochs: int = 100,
+        learning_rate: float = 0.001,
+        momentum: float = 0.9,
+        random_seed: Optional[int] = None,
+        print_every: int = 10,
+        verbose: bool = False,
     ):
         """_summary_
 
         Args:
             x (torch.tensor): Embedded data
             y (torch.tensor): Ground truths
-            num_epochs (Optional[int], optional): Number of epochs to train the CRF tagger. Defaults to 100.
-            learning_rate (Optional[float], optional): Factor to apply during backpropagation. Defaults to 0.001.
-            momentum (Optional[float], optional): Factor to weigh previous iteration during training. Defaults to 0.9.
-            print_every (Optional[int], optional): If verbosity is > 0, setting this will print training logs every n epochs. Defaults to 10.
-            verbosity (Optional[int], optional): If set > 0, this will print logs during training. Defaults to 0.
+            num_epochs (int): Number of epochs to train the CRF tagger. Defaults to 100.
+            learning_rate (float): Factor to apply during backpropagation. Defaults to 0.001.
+            momentum (float): Factor to weigh previous iteration during training. Defaults to 0.9.
+            random_seed (Optional[int], optional): Random seed to use for reproducibility. Defaults to None.
+            print_every (int): If verbosity is > 0, setting this will print training logs every n epochs. Defaults to 10.
+            verbose (bool): If set > 0, this will print logs during training. Defaults to 0.
         """
+        if random_seed is not None:
+            torch.manual_seed(random_seed)
+        else:
+            random_seed = torch.seed()
+
+        if verbose:
+            print("Settings for training:")
+            print(f"num_epochs     {num_epochs}")
+            print(f"learning_rate  {learning_rate}")
+            print(f"momentum       {momentum}")
+            print(f"random_seed    {random_seed}")
 
         embedding_dim = x.shape[-1]
         num_classes = int(y.max()) + 1
@@ -113,18 +126,23 @@ class CRFHead(nn.Module):
         optimizer = optim.SGD(self.parameters(), lr=learning_rate, momentum=momentum)
 
         for epoch in range(num_epochs):
-            if epoch % print_every == 0:
+            if verbose and epoch % print_every == 0:
                 if epoch == 0:
                     loss_item = float("inf")
                 else:
                     loss_item = loss.item()
-                if verbosity > 0:
-                    print(f"Epoch {epoch + 1}/{num_epochs}. Loss {loss_item}")
+
+                print(f"Epoch {epoch + 1}/{num_epochs}. Loss {loss_item}")
 
             optimizer.zero_grad()
             predictions = self.forward(x, inference=False)
 
             loss = self.loss_fn(predictions, y)
+
+            if np.isnan(loss.item()):
+                sys.tracebacklimit = 0
+                raise RuntimeError("Loss is NaN. Try lowering the learning rate.")
+
             loss.backward()
             optimizer.step()
 
